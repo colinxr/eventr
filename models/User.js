@@ -6,7 +6,7 @@ class User extends Sequelize.Model{}
 
 User.init({
   email: {
-    tyep: Sequelize.DataTypes.STRING,
+    type: Sequelize.DataTypes.STRING,
     allowNull: false,
   },
   password: {
@@ -26,7 +26,7 @@ User.init({
 })
 
 User.prototype.isPasswordValid = async function(password) {
-  return await bcrypt.compare(passowrd, this.password)
+  return await bcrypt.compare(password, this.password)
 }
 
 module.exports = User

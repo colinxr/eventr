@@ -1,25 +1,30 @@
-const port   = parseInt(process.env.PORT, 10) || 3000
-const dev    = process.env.NODE_env !== 'production'
-const dotenv = require('dotenv');
+const port           = parseInt(process.env.PORT, 10) || 3000
+const dev            = process.env.NODE_env !== 'production'
+const dotenv         = require('dotenv');
 
-const express = require('express')
-const session = require('session')
+const express        = require('express')
+const session        = require('express-session')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
-const bodyParser = require('body-parser')
-const passport = require('passport')
+const bodyParser     = require('body-parser')
+const passport       = require('passport')
 
-const sequelize = require('./config/database.js')
+const sequelize      = require('./config/database.js')
+const User           = require('./models/User')
+const Event          = require('./models/Event')
+const List           = require('./models/List')
+const Invite         = require('./models/Invite')
 
-const User = require('./models/User')
-const Event = require('./models/Event')
-const List = require('./models/List')
-const Invite = require('./models/Invite')
+const authRoutes     = require('./routes/auth');
+
+const utils          = require('./utils/index')
 
 dotenv.config()
 
 const sessionStore = new SequelizeStore({
   db: sequelize
 })
+
+sessionStore.sync()
 
 User.sync({alter: true})
 Event.sync({ alter: true })
@@ -39,7 +44,7 @@ app.use(
   session({
     secret: process.env.APP_SECRET,
     resave: false,
-    saveUnitialized: true,
+    saveUninitialized: true,
     name: 'eventr',
     cookie: {
       secure: false,
@@ -50,6 +55,20 @@ app.use(
   passport.initialize(),
   passport.session()
 )
+
+/*------------------------------------*
+//
+//  Route Handlers
+//
+/*------------------------------------*/
+app.use(utils.errorHandler)
+
+app.get('/', (req, res) => {
+  res.end(JSON.stringify({message: 'hello fool!'}))
+})
+
+app.use('/api/auth', authRoutes)
+
 
 // Launch app
 app.listen(port, err => {

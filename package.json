@@ -4,6 +4,7 @@
   "description": "event management app",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Colin Rabyniuk",
@@ -11,13 +12,16 @@
   "dependencies": {
     "bcrypt": "^3.0.7",
     "body-parser": "^1.19.0",
+    "connect-session-sequelize": "^6.0.0",
     "connect-session-store": "^0.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "nodemon": "^2.0.2",
     "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
     "pg": "^7.14.0",
-    "sequelize": "^5.21.3"
+    "sequelize": "^5.21.3",
+    "session": "^0.1.0"
   }
 }
