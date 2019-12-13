@@ -9,6 +9,9 @@
   "author": "Colin Rabyniuk",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.7",
+    "body-parser": "^1.19.0",
+    "connect-session-store": "^0.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
