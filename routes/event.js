@@ -97,6 +97,32 @@ router.put('/:id/archive', async(req, res) => {
     })
 })
 
+router.get('/:id/list', async (req, res) => {
+  const event_id = req.params.id 
+
+  try {
+    List.findOne({ where: { event_id } })
+      .then(async list => {
+        console.log(list)
+        const list_id = list.dataValues.id
+        try {
+          const invites = await Invite.findAll({ where: { list_id } })
+
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify(invites))
+        } catch (error) {
+          res.writeHead(500, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ status: 'error', message: error.name }))
+        }
+      })
+  } catch (error) {
+    console.log(error)
+    res.writeHead(500, {'Content-Type': 'application/json'})
+    res.end(JSON.stringify({status: 'error', message: error.name}))
+  }
+  
+})
+
 router.post('/:id/list', upload.single('csv'), async(req, res) => {
   const file = req.file 
   const eventId = req.params.id
@@ -108,27 +134,29 @@ router.post('/:id/list', upload.single('csv'), async(req, res) => {
   }
 
   try {
-    List.findOrCreate({ where: { id: eventId }})
-      .then(data => {
-        const listId = data[0].dataValues.id
+    List.findOrCreate({ 
+      where: { event_id: eventId }, 
+      defaults: { event_id: eventId }
+    })
+    .then(data => {
+      const listId = data[0].dataValues.id
 
-        fs.createReadStream(file.path)
-          .pipe(csv.parse({ headers: true }))
-          .on('data', async row => {
-            try {
-              row.list_id = listId
-              const invite = await Invite.create(row)
-            } catch (error) {
-              console.log(error.name)
-              res.writeHead(500, { 'Content-Type': 'application/json' })
-              res.end(JSON.stringify({ status: 'error', message: error.name }))
-              return
-            }
-          })
-          .on('end', () => {
-            res.writeHead(200, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ status: 'ok', message: 'Invites uploaded' }))
-          }) 
+      fs.createReadStream(file.path)
+        .pipe(csv.parse({ headers: true }))
+        .on('data', async row => {
+          try {
+            row.list_id = listId
+            const invite = await Invite.create(row)
+          } catch (error) {
+            res.writeHead(500, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ status: 'error', message: error.name }))
+            return
+          }
+        })
+        .on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ status: 'ok', message: 'Invites uploaded' }))
+        }) 
       })
   } catch (error) {
     console.log(error)
