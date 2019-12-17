@@ -15,6 +15,7 @@ const List           = require('./models/List')
 const Invite         = require('./models/Invite')
 
 const authRoutes     = require('./routes/auth');
+const eventRoutes    = require('./routes/event');
 
 const utils          = require('./utils/index')
 
@@ -61,13 +62,12 @@ app.use(
 //  Route Handlers
 //
 /*------------------------------------*/
-app.use(utils.errorHandler)
-
 app.get('/', (req, res) => {
   res.end(JSON.stringify({message: 'hello fool!'}))
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/events', eventRoutes)
 
 
 // Launch app

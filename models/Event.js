@@ -24,6 +24,11 @@ Event.init({
   venue: {
     type: Sequelize.DataTypes.STRING,
     allowNull: false
+  },
+  active: {
+    type: Sequelize.DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true, 
   }
 }, {
   sequelize,
