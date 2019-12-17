@@ -173,19 +173,25 @@ router.post('/:id/approve', async (req, res) => {
     guestData.instagram = instagram
     guestData.guestName = guestName
     guestData.status = 'unknown'
+
     const invite = await Invite.findOne({ where: { email }})
     
-    if (invite) {
-      try {
-        guestData.status = 'approved'
-        const guest = await Guest.create(guestData)
+    try {
+      guestData = invite
+      guestData.status = invite ? 'approved' : 'unknown'
+      guestData.postal = postal
+      guestData.instagram = instagram
+      guestData.guestName = guestName
+      guestData.status = 'unknown'
+      
+      const guest = await Guest.create(guestData)
 
-        res.end(JSON.stringify({status: 'success', message: 'guest added'}))
-      } catch (error) {
-        res.writeHead(500, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ status: 'error', message: err.name }))
-        return
-      }
+      res.writeHead(200, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify({status: 'success', message: 'guest added'}))
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'error', message: err.name }))
+      return
     }
 
     res.writeHead(200, {'Content-Type': 'application/json'})
