@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const sequelize = require('../config/database')
+const Event     = require('./Event')
 
 class List extends Sequelize.Model { }
 
@@ -9,14 +10,12 @@ List.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
-    type: Sequelize.DataTypes.STRING,
-    allowNull: false
-  },
-  count: {
+  event_id: {
     type: Sequelize.DataTypes.INTEGER,
-    defaultValue: 0,
-    allowNull: false,
+    references: {
+      model: Event, 
+      key: 'id',
+    }
   }
 }, {
   sequelize,

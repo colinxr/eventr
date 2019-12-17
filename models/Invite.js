@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const sequelize = require('../config/database')
+const List      = require('./List')
 
 class Invite extends Sequelize.Model { }
 
@@ -12,6 +13,10 @@ Invite.init({
   list_id: {
     type: Sequelize.DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: List,
+      key: 'id',
+    }
   },
   name: {
     type: Sequelize.DataTypes.STRING,
