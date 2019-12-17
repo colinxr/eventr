@@ -83,8 +83,8 @@ router.put('/:id/archive', async(req, res) => {
       }
 
       Event.update(
-        {status: false}, 
-        { where: {id: eventData.id} }
+        { status: false }, 
+        { where: { id: eventData.id } }
       )
       .then(() => {
         res.writeHead(200, {'Content-Type': 'application/json'})
@@ -162,6 +162,37 @@ router.post('/:id/list', upload.single('csv'), async(req, res) => {
     console.log(error)
     res.writeHead(500, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ status: 'error', message: error.name }))
+  }
+})
+
+router.post('/:id/approve', async (req, res) => {
+  const { email, name, postal, instagram, guestName } = req.body.guest
+
+  try {
+    guestData.postal = postal
+    guestData.instagram = instagram
+    guestData.guestName = guestName
+    guestData.status = 'unknown'
+    const invite = await Invite.findOne({ where: { email }})
+    
+    if (invite) {
+      try {
+        guestData.status = 'approved'
+        const guest = await Guest.create(guestData)
+
+        res.end(JSON.stringify({status: 'success', message: 'guest added'}))
+      } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ status: 'error', message: err.name }))
+        return
+      }
+    }
+
+    res.writeHead(200, {'Content-Type': 'application/json'})
+    res.end(JSON.stringify({status: 'success', message: 'guest approved'}))
+  } catch (error) {
+    res.writeHead(500, {'Content-Type': 'application/json'})
+    res.end(JSON.stringify({status: 'error', message: err.name}))
   }
 })
 

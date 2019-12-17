@@ -33,8 +33,29 @@ Invite.init({
   category: {
     type: Sequelize.DataTypes.STRING,
     allowNull: true
+  },
+  status: {
+    type: Sequelize.DataTypes.STRING,
+    defaultValue: 'invited'
   }
 }, {
+  scopes: {
+    unknown: {
+      where: {
+        status: 'unknown'
+      }
+    },
+    approved: {
+      where: {
+        status: 'approved'
+      }
+    },
+    invited: {
+      where: {
+        status: 'invited' 
+      }
+    }
+  },
   sequelize,
   modelName: 'invite'
 })
