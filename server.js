@@ -1,6 +1,8 @@
-const port           = parseInt(process.env.PORT, 10) || 3000
-const dev            = process.env.NODE_env !== 'production'
+
 const dotenv         = require('dotenv');
+const port           = parseInt(process.env.PORT, 10) || 3001
+const dev            = process.env.NODE_env !== 'production'
+dotenv.config()
 
 const express        = require('express')
 const session        = require('express-session')
@@ -13,13 +15,15 @@ const User           = require('./models/User')
 const Event          = require('./models/Event')
 const List           = require('./models/List')
 const Invite         = require('./models/Invite')
+const Guest          = require('./models/Guest')
 
-const authRoutes     = require('./routes/auth');
-const eventRoutes    = require('./routes/event');
+const authRoutes     = require('./routes/auth')
+const eventRoutes    = require('./routes/event')
+const guestRoutes    = require('./routes/guest')
 
 const utils          = require('./utils/index')
 
-dotenv.config()
+
 
 const sessionStore = new SequelizeStore({
   db: sequelize
@@ -31,8 +35,9 @@ User.sync({alter: true})
 Event.sync({ alter: true })
 List.sync({ alter: true })
 Invite.sync({ alter: true })
+Guest.sync({ alter: true })
 
-require('./config/passport')(passport);  // pass passport for configuration
+require('./config/passport')(passport)  // pass passport for configuration
 
 const app = express()
 
@@ -62,12 +67,9 @@ app.use(
 //  Route Handlers
 //
 /*------------------------------------*/
-app.get('/', (req, res) => {
-  res.end(JSON.stringify({message: 'hello fool!'}))
-})
-
 app.use('/api/auth', authRoutes)
 app.use('/api/events', eventRoutes)
+app.use('/api/guests', guestRoutes)
 
 
 // Launch app

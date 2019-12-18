@@ -7,7 +7,7 @@ const User      = require('../models/User')
 const List      = require('../models/List')
 const Event     = require('../models/Event')
 const Invite    = require('../models/Invite')
-const sequelize = require('../config/database')
+const Guest = require('../models/Guest')
 const utils     = require('../utils/index')
 
 const upload    = multer({dest: '/tmp/csv/'})
@@ -165,40 +165,53 @@ router.post('/:id/list', upload.single('csv'), async(req, res) => {
   }
 })
 
-router.post('/:id/approve', async (req, res) => {
-  const { email, name, postal, instagram, guestName } = req.body.guest
+router.post('/:id/guest/new', async (req, res) => {
+  const event_id = req.params.id
+  const { name, email, postal, instagram, guestName } = req.body.guest
 
   try {
-    guestData.postal = postal
-    guestData.instagram = instagram
-    guestData.guestName = guestName
-    guestData.status = 'unknown'
+    const event = await Event.findByPk(event_id)
 
-    const invite = await Invite.findOne({ where: { email }})
-    
+    const invite = await Invite.findOne({
+      where: {
+        email: email,
+        list_id: event.list_id
+      }
+    })
+
     try {
-      guestData = invite
-      guestData.status = invite ? 'approved' : 'unknown'
-      guestData.postal = postal
-      guestData.instagram = instagram
-      guestData.guestName = guestName
-      guestData.status = 'unknown'
-      
+      const guestData = {
+        name,
+        email,
+        postal,
+        instagram,
+        guestName,
+        status: invite ? 'approved' : 'unknown',
+        event_id: event.id
+      }
+
+      if (invite) {
+        const { company, category } = invite.dataValues
+        guestData.company = company
+        guestData.category = category
+      }
+
+      console.log(guestData)
+
       const guest = await Guest.create(guestData)
 
-      res.writeHead(200, {'Content-Type': 'application/json'})
-      res.end(JSON.stringify({status: 'success', message: 'guest added'}))
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'success', message: 'Guest added' }))
     } catch (error) {
+      console.log(error)
       res.writeHead(500, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ status: 'error', message: err.name }))
+      res.end(JSON.stringify({ status: 'error', message: error.name }))
       return
     }
-
-    res.writeHead(200, {'Content-Type': 'application/json'})
-    res.end(JSON.stringify({status: 'success', message: 'guest approved'}))
   } catch (error) {
-    res.writeHead(500, {'Content-Type': 'application/json'})
-    res.end(JSON.stringify({status: 'error', message: err.name}))
+    console.log(error)
+    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ status: 'error', message: error.name }))
   }
 })
 
