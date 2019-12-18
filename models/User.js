@@ -12,6 +12,14 @@ User.init({
   password: {
     type: Sequelize.DataTypes.STRING,
     allowNull: false
+  },
+  resetToken: {
+    type: Sequelize.DataTypes.STRING,
+    allowNull: true
+  },
+  resetTokenExpires: {
+    type: Sequelize.DataTypes.DATE,
+    allowNull: true
   }
 }, {
   sequelize,
@@ -19,8 +27,12 @@ User.init({
   timestamps: true,
   hooks: {
     beforeCreate: async user => {
-      const salt = await bcrypt.genSalt(10) // generate salt at 10 rounds 
+      const salt = await bcrypt.genSalt(12) // generate salt at 10 rounds 
       user.password = await bcrypt.hash(user.password, salt) // replace users plain text password with newly created salt 
+    },
+    beforeUpdate: async user => {
+      const salt = await bcrypt.genSalt(12)
+      user.password = await bcrypt.hash(user.password, salt)
     }
   }
 })

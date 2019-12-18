@@ -1,8 +1,13 @@
+
+const crypto    = require('crypto')
+const Op        = require('Sequelize').Op
 const router    = require('express').Router()
 const passport  = require('passport')
+const mail      = require('@sendgrid/mail')
 const User      = require('../models/User')
-const sequelize = require('../config/database')
-const utils = require('../utils/index.js')
+const utils     = require('../utils/index.js')
+
+mail.setApiKey(process.env.SENDGRID_API_KEY)
 
 router.post('/register', async (req, res) => {
   // get the user details from req.body
@@ -63,6 +68,74 @@ router.post('/logout', (req, res) => {
   req.session.destroy()
   res.end(JSON.stringify({status: 'success', message: 'logged out'}))
   return 
+})
+
+router.post('/forgot', async (req, res) => {
+  const {email} = req.body
+  console.log(email)
+  const resetToken = crypto.randomBytes(20).toString('hex')
+  const resetTokenExpires = Date.now() + 3600000
+
+  try {
+    const user = await User.findOne({ where: { email }})
+    
+    if (!user) {
+      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'error', message: 'No user found' }))
+      return
+    }
+    
+    user.update({resetToken, resetTokenExpires}) 
+
+    // send email
+    const msg = {
+      to: email,
+      from: process.env.EMAIL,
+      subject: 'Password Reset',
+      text: `
+      You are receiving this because you (or someone else) have requested the reset of the password for your account.
+      Please click on the following link, or paste this into your browser to complete the process:
+      http://${process.env.BASE_URL}/reset/${resetToken}
+      If you did not request this, please ignore this email and your password will remain unchanged.
+    `,
+    }
+
+    mail.send(msg);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ status: 'ok', message: 'Password reset link sent' }))
+  } catch (error) {
+    console.log(error)
+    utils.errorHandler(error, res)
+  }
+})
+
+router.post('/reset/:token', async (req, res) => {
+  const { password } = req.body
+  const resetToken = req.params.token
+
+  try {
+    const user = await User.findOne({
+      where: {
+        resetToken,
+        resetTokenExpires: { [Op.gt]: Date.now() }
+      }
+    })
+
+    if (!user) {
+      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'error', message: 'No user found' }))
+      return
+    }
+    
+    user.update({ password, resetToken: null, resetTokenExpires: null })
+
+    res.writeHead(200, {'Content-Type': 'application/json'})
+    res.end(JSON.stringify({status: 'success', message: 'Password reset'}))
+  } catch (error) {
+    console.log(error)
+    utils.errorHandler(error, res)
+  }
 })
 
 module.exports = router 
