@@ -12,7 +12,7 @@ const utils     = require('../utils/index')
 
 const upload    = multer({dest: '/tmp/csv/'})
 
-router.post('/new', async (req, res) => {
+router.post('/new', utils.isAuthenticated, async (req, res) => {
   const {slug, title, venue, list_id} = req.body.event 
 
   try {
@@ -65,10 +65,7 @@ router.put('/:id/edit', async (req, res) => {
           res.writeHead(200, {'Content-Type': 'application/json'})
           res.end(JSON.stringify({status: 'success', message:'Event Updated'}))
         })
-        .catch(err => {
-          res.writeHead(500, {'Content-Type': 'application/json'})
-          res.end(JSON.stringify({status: 'error', message: err.name}))
-        })
+        .catch(err =>  utils.errorHandler(err, res) )
     })
 })
 
@@ -90,10 +87,7 @@ router.put('/:id/archive', async(req, res) => {
         res.writeHead(200, {'Content-Type': 'application/json'})
         res.end(JSON.stringify({status: 'success', message: 'Event Archived'}))
       })
-      .catch(err => {
-        res.writeHead(500, {'Content-Type': 'application/json'})
-        res.end(JSON.stringify({status: 'error', message: err.name}))
-      })
+      .catch(err => utils.errorHandler(err, res))
     })
 })
 
@@ -115,12 +109,9 @@ router.get('/:id/list', async (req, res) => {
           res.end(JSON.stringify({ status: 'error', message: error.name }))
         }
       })
-  } catch (error) {
-    console.log(error)
-    res.writeHead(500, {'Content-Type': 'application/json'})
-    res.end(JSON.stringify({status: 'error', message: error.name}))
+  } catch (err) { 
+    utils.errorHandler(err, res) 
   }
-  
 })
 
 router.post('/:id/list', upload.single('csv'), async(req, res) => {
@@ -148,20 +139,18 @@ router.post('/:id/list', upload.single('csv'), async(req, res) => {
             row.list_id = listId
             const invite = await Invite.create(row)
           } catch (error) {
-            res.writeHead(500, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ status: 'error', message: error.name }))
-            return
+            utils.errorHandler(error, res)
           }
         })
         .on('end', () => {
+          Event.update({list_id: listId}, {where: {id: eventId}})
+
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ status: 'ok', message: 'Invites uploaded' }))
         }) 
       })
   } catch (error) {
-    console.log(error)
-    res.writeHead(500, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ status: 'error', message: error.name }))
+    utils.errorHandler(error, res)
   }
 })
 
