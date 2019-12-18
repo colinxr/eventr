@@ -2,6 +2,20 @@ const router    = require('express').Router()
 const Guest     = require('../models/Guest')
 const utils     = require('../utils')
 
+
+router.get('/:id', utils.isAuthenticated, async (req, res) => {
+  const { id } = req.params
+
+  try {
+    Guest.findOne({ where: { id } })
+
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ status: 'success', message: 'Guest details updated' }))
+  } catch (error) {
+    utils.errorHandler(error, res)
+  }
+})
+
 router.put('/:id', utils.isAuthenticated, async (req, res) => {
   const userData = req.body.user 
   const { id } = req.params 
