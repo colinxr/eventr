@@ -7,8 +7,8 @@ const User      = require('../models/User')
 const List      = require('../models/List')
 const Event     = require('../models/Event')
 const Invite    = require('../models/Invite')
-const Guest = require('../models/Guest')
-const utils     = require('../utils/index')
+const Guest     = require('../models/Guest')
+const utils     = require('../utils')
 
 const upload    = multer({dest: '/tmp/csv/'})
 
@@ -32,7 +32,7 @@ router.post('/new', utils.isAuthenticated, async (req, res) => {
   }
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', utils.isAuthenticated, async (req, res) => {
   const eventId = req.params.id 
 
   Event.findByPk(eventId)
@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
     })
 })
 
-router.put('/:id/edit', async (req, res) => {
+router.put('/:id/edit', utils.isAuthenticated, async (req, res) => {
   const eventId = req.params.id
   const eventData = req.body.event 
   
@@ -69,7 +69,7 @@ router.put('/:id/edit', async (req, res) => {
     })
 })
 
-router.put('/:id/archive', async(req, res) => {
+router.put('/:id/archive', utils.isAuthenticated, async(req, res) => {
   const eventId = req.params.id
 
   Event.findByPk(eventId)
@@ -91,7 +91,7 @@ router.put('/:id/archive', async(req, res) => {
     })
 })
 
-router.get('/:id/list', async (req, res) => {
+router.get('/:id/list', utils.isAuthenticated, async (req, res) => {
   const event_id = req.params.id 
 
   try {
@@ -114,7 +114,7 @@ router.get('/:id/list', async (req, res) => {
   }
 })
 
-router.post('/:id/list', upload.single('csv'), async(req, res) => {
+router.post('/:id/list', utils.isAuthenticated, upload.single('csv'), async(req, res) => {
   const file = req.file 
   const eventId = req.params.id
 

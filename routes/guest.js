@@ -1,7 +1,8 @@
 const router    = require('express').Router()
 const Guest     = require('../models/Guest')
+const utils     = require('../utils')
 
-router.put('/:id/deny', async (req, res) => {
+router.put('/:id/deny', utils.isAuthenticated, async (req, res) => {
   const { id } = req.params
 
   try {
@@ -16,7 +17,7 @@ router.put('/:id/deny', async (req, res) => {
   }
 })
 
-router.put('/:id/approve', async (req, res) => {c
+router.put('/:id/approve', utils.isAuthenticated, async (req, res) => {c
   const { id } = req.params
 
   try {
