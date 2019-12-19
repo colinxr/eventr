@@ -10,6 +10,40 @@ const utils     = require('../utils')
 
 const upload    = multer({dest: '/tmp/csv/'})
 
+router.get('/', async (req, res) => {
+  try {
+    Event.findAndCountAll()
+      .then(results => {
+        const events = results.rows.map(event => event.dataValues)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(events))
+      })
+      .catch(error => {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ status: 'error', message: error.name }))
+      })
+  } catch (error) {
+    res.writeHead(500, {'Content-Type': 'application/json'})
+    res.end(JSON.stringify({status: 'error', message: error.name}))
+  }
+})
+
+router.get('/:id', utils.isAuthenticated, async (req, res) => {
+  const eventId = req.params.id
+
+  Event.findByPk(eventId)
+    .then(event => {
+      if (!event) {
+        res.writeHead(404, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ status: 'error', message: 'Event not found' }))
+        return
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(event.dataValues))
+    })
+})
+
 router.post('/new', utils.isAuthenticated, async (req, res) => {
   const {slug, title, venue, list_id} = req.body.event 
 
@@ -28,22 +62,6 @@ router.post('/new', utils.isAuthenticated, async (req, res) => {
       'An error occured'
     utils.errorHandler(message, res)
   }
-})
-
-router.get('/:id', utils.isAuthenticated, async (req, res) => {
-  const eventId = req.params.id 
-
-  Event.findByPk(eventId)
-    .then(event => {
-      if (!event) {
-        res.writeHead(404, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ status: 'error', message: 'Event not found' }))
-        return
-      }
-
-      res.writeHead(200, {'Content-Type': 'application/json'})
-      res.end(JSON.stringify(event.dataValues))
-    })
 })
 
 router.put('/:id/edit', utils.isAuthenticated, async (req, res) => {

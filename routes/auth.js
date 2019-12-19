@@ -13,53 +13,62 @@ router.post('/register', async (req, res) => {
   // get the user details from req.body
   const {email, password, passwordConfirmation} = req.body 
 
+  console.log(email, password)
+
+  console.log('tk')
+
+  if (
+      email === undefined ||
+      password === undefined ||
+      passwordConfirmation === undefined
+    ) {
+      return utils.errorHandler('Not all fields were filled in', res)
+    }
+
   if (password !== passwordConfirmation) {
-    utils.errorHandler('Password do not match', res)
-    return 
+    return utils.errorHandler('Password do not match', res)
   }
 
   try {
     const user = await User.create({ email, password })
     req.login(user, error => {
+      console.log(user)
       if (error) {
         console.log(error)
-        errorHandler(error, res)
-        return
+        return utils.errorHandler(error, res)
       }
-
-      res.end(JSON.stringify({status: 'success', message: 'User Added'}))
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'success', message: 'User Added' }))
       return 
     })
   } catch (error) {
+    console.log('tk 4')
     const message = error.name === 'SequelizeUniqueConstraintError' ? 
       'User email already exists' : 
       'An error occured'
-    utils.errorHandler(message, res)
+    return utils.errorHandler(message, res)
   }
 })
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (error, user) => {
     if (error) {
-      utils.errorHandler(error, res)
-      return 
+      return  utils.errorHandler(error, res)
     }
 
     if (!user) {
-      utils.errorHandler('User does not exist', req, res)
-      return 
+      return utils.errorHandler('User does not exist', req, res)
     }
 
     req.logIn(user, error => {
       if (error) {
-        utils.errorHandler(error, res)
-        return 
+        return utils.errorHandler(error, res)
+        
       }
 
-      res.end(JSON.stringify({status: 'success', message: 'Logged In'}))
-      return
+      res.writeHead(200, {'Content-Type': 'application/json'})
+      return res.end(JSON.stringify({status: 'success', message: 'Logged In'}))
     })
-
   })(req, res, next)
 })
 

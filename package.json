@@ -4,7 +4,7 @@
   "description": "event management app",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon --ignore './client' --exec node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Colin Rabyniuk",
@@ -15,6 +15,7 @@
     "body-parser": "^1.19.0",
     "connect-session-sequelize": "^6.0.0",
     "connect-session-store": "^0.0.1",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",

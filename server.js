@@ -6,6 +6,7 @@ dotenv.config()
 
 const express        = require('express')
 const session        = require('express-session')
+const cors           = require('cors')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const bodyParser     = require('body-parser')
 const passport       = require('passport')
@@ -24,10 +25,10 @@ const guestRoutes    = require('./routes/guest')
 const utils          = require('./utils/index')
 
 
-
 const sessionStore = new SequelizeStore({
   db: sequelize
 })
+
 
 sessionStore.sync()
 
@@ -61,6 +62,14 @@ app.use(
   passport.initialize(),
   passport.session()
 )
+
+app.use('*', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+})
 
 /*------------------------------------*
 //

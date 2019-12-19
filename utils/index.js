@@ -1,7 +1,6 @@
 const errorHandler = (err, res) => {
   res.statusCode = 500
-  res.end(JSON.stringify({ status: 'error', message: err.name }))
-  return
+  return res.end(JSON.stringify({ status: 'error', message: err.name }))
 }
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next()
