@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import Router from 'next/router';
+import Link from 'next/link'
 import fetch from 'isomorphic-fetch'
 import { useStoreActions, useStoreState } from 'easy-peasy'
 import Layout from '../../components/Layout'
@@ -23,7 +24,11 @@ const Admin = (props) => {
             props.events ? props.events.map(event => {
               return (
                 <div className="event">
-                  <h2>{event.title}</h2>
+                  <Link href={`/admin/event/${event.id}`}>
+                  <a>
+                    <h2>{event.title}</h2>
+                  </a>
+                  </Link>
                   <p>{event.venue}</p>
                 </div>
               )
