@@ -48,7 +48,6 @@ router.post('/login', (req, res, next) => {
 
     req.login(user, error => {
       if (error) utils.errorHandler(error.name, res)
-      console.log(req.session)
 
       res.writeHead(200, {'Content-Type': 'application/json'})
       return res.end(JSON.stringify({status: 'success', message: 'Logged In'}))
@@ -61,13 +60,11 @@ router.post('/logout', (req, res) => {
   req.session.destroy(() => {
   })
   req.logOut()
-  console.log(req)
   return res.end(JSON.stringify({ status: 'success', message: 'Logged out' }))
 })
 
 router.post('/forgot', async (req, res) => {
   const {email} = req.body
-  console.log(email)
   const resetToken = crypto.randomBytes(20).toString('hex')
   const resetTokenExpires = Date.now() + 3600000
 
@@ -100,7 +97,6 @@ router.post('/forgot', async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ status: 'ok', message: 'Password reset link sent' }))
   } catch (error) {
-    console.log(error)
     utils.errorHandler(error, res)
   }
 })
@@ -128,7 +124,6 @@ router.post('/reset/:token', async (req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json'})
     res.end(JSON.stringify({status: 'success', message: 'Password reset'}))
   } catch (error) {
-    console.log(error)
     utils.errorHandler(error, res)
   }
 })

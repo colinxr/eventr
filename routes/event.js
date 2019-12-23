@@ -12,7 +12,6 @@ const utils     = require('../utils')
 const upload    = multer({dest: '/tmp/csv/'})
 
 router.get('/', utils.isAuthenticated, async (req, res) => {
-  console.log(req.session)
   try {
     Event.findAndCountAll()
       .then(results => {
@@ -115,7 +114,6 @@ router.get('/:id/list', utils.isAuthenticated, async (req, res) => {
   try {
     List.findOne({ where: { event_id } })
       .then(async list => {
-        console.log(list)
         const list_id = list.dataValues.id
         try {
           const invites = await Invite.findAll({ where: { list_id } })
@@ -202,8 +200,6 @@ router.post('/:id/guest/new', async (req, res) => {
         guestData.company = company
         guestData.category = category
       }
-
-      console.log(guestData)
 
       const guest = await Guest.create(guestData)
 
