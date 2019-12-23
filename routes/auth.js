@@ -1,4 +1,3 @@
-
 const crypto    = require('crypto')
 const Op        = require('Sequelize').Op
 const router    = require('express').Router()
@@ -29,7 +28,7 @@ router.post('/register', async (req, res) => {
     const user = await User.create({ email, password })
     req.login(user, error => {
       if (error) return utils.errorHandler(error, res)
-      
+
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ status: 'success', message: 'User Added' }))
       return 
@@ -59,10 +58,11 @@ router.post('/login', (req, res, next) => {
 })
 
 router.post('/logout', (req, res) => {
-  req.logout()
-  req.session.destroy()
-  res.end(JSON.stringify({status: 'success', message: 'logged out'}))
-  return 
+  req.session.destroy(() => {
+  })
+  req.logOut()
+  console.log(req)
+  return res.end(JSON.stringify({ status: 'success', message: 'Logged out' }))
 })
 
 router.post('/forgot', async (req, res) => {

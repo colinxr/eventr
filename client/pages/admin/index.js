@@ -5,6 +5,7 @@ import fetch from 'isomorphic-fetch'
 import { useStoreActions, useStoreState } from 'easy-peasy'
 import Layout from '../../components/Layout'
 import Header from '../../components/Header'
+import store from '../../store'
 
 const Admin = (props) => {
   return (
@@ -12,7 +13,6 @@ const Admin = (props) => {
       content={
         <>
         <Header title="admin" />
-          {/* {console.log( props )} */}
 
           { 
             props.error && 
@@ -46,6 +46,11 @@ Admin.getInitialProps = async (ctx) => {
   if (data.status === 'error') { 
     return { error: 'not logged in'}
   }
+
+  // user = ctx.req.session.passport.user
+  // console.log(ctx.req)
+
+  // store.getActions().user.setUser(user)
   
   return { events: data }
 }

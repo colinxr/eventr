@@ -1,8 +1,12 @@
 import App from 'next/app'
-import { StoreProvider } from 'easy-peasy'
+import { StoreProvider, useStoreActions } from 'easy-peasy'
 import store from '../store'
 
-function MyApp({Component, pageProps}) {
+function MyApp({Component, pageProps, user}) {
+  if (user) {
+    store.getActions().user.setUser(user)
+  }
+  
   return (
     <StoreProvider store={store}>
       <Component {...pageProps}/>
@@ -22,9 +26,11 @@ MyApp.getInitialProps = async appContext => {
     appContext.ctx.req.session.passport.user
   ) {
     user = appContext.ctx.req.session.passport.user
+
+    store.getActions().user.setUser(user)
   }
   
-  return {...appProps, user}
+  return {...appProps, user: user}
 }
 
 export default MyApp

@@ -14,13 +14,12 @@ const cookieParser   = require('cookie-parser')
 const passport       = require('passport')
 const LocalStrategy  = require('passport-local').Strategy
 
-const sequelize      = require('./config/database.js')
+const sequelize      = require('./config/database')
 const User           = require('./models/User')
 const Event          = require('./models/Event')
 const List           = require('./models/List')
 const Invite         = require('./models/Invite')
 const Guest          = require('./models/Guest')
-
 const authRoutes     = require('./routes/auth')
 const eventRoutes    = require('./routes/event')
 const guestRoutes    = require('./routes/guest')
@@ -46,7 +45,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (email, done) => {
   const user = await User.findOne({ where: { email } })
-  done(null, true)
+  done(null, user)
 })
 
 passport.use(new LocalStrategy({
@@ -88,14 +87,15 @@ app.use(
   session({
     secret: process.env.APP_SECRET,
     name: 'eventr',
-    resave: true,
+    resave: false,
     saveUninitialized: false,
-    rolling: true,
+    rolling: false,
     cookie: {
       secure: false,
       maxAge: 8 * 60 * 60 * 1000
     },
     store: sessionStore,
+    unset: 'destroy'
   }),
 )
 app.use(passport.initialize())
