@@ -1,4 +1,3 @@
-const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 
 const User = require('../models/User.js')
@@ -8,8 +7,13 @@ module.exports = (passport) => {
     done(null, user.email)
   })
 
-  passport.deserializeUser((email, done) => {
-    User.findOne({ where: { email: email } }).then(user => done(null, user))
+  passport.deserializeUser(async (email, done) => {
+    try {
+      const user = await User.findOne({ where: { email } })
+      done(null, user.email)
+    } catch (error) {
+      done(error)
+    }
   })
 
   passport.use(new LocalStrategy({
@@ -21,7 +25,7 @@ module.exports = (passport) => {
       return
     }
 
-    const user = await User.findOne({ where: { email: email } })
+    const user = await User.findOne({ where: { email } })
 
     if (!user) {
       done('User not found', null);
@@ -37,5 +41,4 @@ module.exports = (passport) => {
 
     done(null, user);
   }))
-
 }

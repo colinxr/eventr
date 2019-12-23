@@ -7,7 +7,6 @@ import Layout from '../components/Layout'
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const test = useStoreState(state => state.test.showTest)
   const setUser = useStoreActions(actions => actions.user.setUser)
 
   const handleSubmit = async (e) => {
@@ -21,12 +20,12 @@ const Login = () => {
     try {
       fetch('http://localhost:3001/api/auth/login', {
         method: 'post',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({email, password})
       })
       .then(resp => resp.json())
       .then(resp => {
-        console.log(resp)
         if (resp.status === 'error') {
           alert(resp.message)
           return
@@ -37,7 +36,7 @@ const Login = () => {
       })
     } catch (error) {
       console.log(error)
-      // alert(error.response.data.message)
+      alert(error.response.data.message)
     }
   }
   

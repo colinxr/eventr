@@ -2,7 +2,7 @@ import App from 'next/app'
 import { StoreProvider } from 'easy-peasy'
 import store from '../store'
 
-function MyApp({Component, pageProps, user}) {
+function MyApp({Component, pageProps}) {
   return (
     <StoreProvider store={store}>
       <Component {...pageProps}/>
@@ -23,10 +23,8 @@ MyApp.getInitialProps = async appContext => {
   ) {
     user = appContext.ctx.req.session.passport.user
   }
-
-  console.log(user)
-
-  return {...appProps, user: user}
+  
+  return {...appProps, user}
 }
 
 export default MyApp

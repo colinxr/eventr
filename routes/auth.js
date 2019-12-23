@@ -13,10 +13,6 @@ router.post('/register', async (req, res) => {
   // get the user details from req.body
   const {email, password, passwordConfirmation} = req.body 
 
-  console.log(email, password)
-
-  console.log('tk')
-
   if (
       email === undefined ||
       password === undefined ||
@@ -32,17 +28,13 @@ router.post('/register', async (req, res) => {
   try {
     const user = await User.create({ email, password })
     req.login(user, error => {
-      console.log(user)
-      if (error) {
-        console.log(error)
-        return utils.errorHandler(error, res)
-      }
+      if (error) return utils.errorHandler(error, res)
+      
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ status: 'success', message: 'User Added' }))
       return 
     })
   } catch (error) {
-    console.log('tk 4')
     const message = error.name === 'SequelizeUniqueConstraintError' ? 
       'User email already exists' : 
       'An error occured'
@@ -51,23 +43,17 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (error, user) => {
-    if (error) {
-      return  utils.errorHandler(error, res)
-    }
+  passport.authenticate('local', (error, user, info) => {
+    if (error) return utils.errorHandler(error, res)
+    if (!user) return utils.errorHandler('User does not exist', req, res)
 
-    if (!user) {
-      return utils.errorHandler('User does not exist', req, res)
-    }
-
-    req.logIn(user, error => {
-      if (error) {
-        return utils.errorHandler(error, res)
-        
-      }
+    req.login(user, error => {
+      if (error) utils.errorHandler(error.name, res)
+      console.log(req.session)
 
       res.writeHead(200, {'Content-Type': 'application/json'})
       return res.end(JSON.stringify({status: 'success', message: 'Logged In'}))
+
     })
   })(req, res, next)
 })

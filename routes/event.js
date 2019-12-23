@@ -2,6 +2,7 @@ const fs        = require('fs')
 const router    = require('express').Router()
 const multer    = require('multer')
 const csv       = require('fast-csv')
+
 const List      = require('../models/List')
 const Event     = require('../models/Event')
 const Invite    = require('../models/Invite')
@@ -10,7 +11,8 @@ const utils     = require('../utils')
 
 const upload    = multer({dest: '/tmp/csv/'})
 
-router.get('/', async (req, res) => {
+router.get('/', utils.isAuthenticated, async (req, res) => {
+  console.log(req.session)
   try {
     Event.findAndCountAll()
       .then(results => {
