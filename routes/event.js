@@ -31,18 +31,35 @@ router.get('/', utils.isAuthenticated, async (req, res) => {
 
 router.get('/:id', utils.isAuthenticated, async (req, res) => {
   const eventId = req.params.id
+  
+  try {
+    const event = await Event.findByPk(eventId)
 
-  Event.findByPk(eventId)
-    .then(event => {
-      if (!event) {
-        res.writeHead(404, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ status: 'error', message: 'Event not found' }))
-        return
-      }
+    if (!event) {
+      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'error', message: 'Event not found' }))
+      return
+    }
 
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(event.dataValues))
+    const guests = await Guest.findAndCountAll({
+      where: { event_id: event.id, }
     })
+
+    const guestData = guests.rows.map(guest => guest.dataValues)
+
+    const data = {
+      event: event.dataValues,
+      guests: guestData
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(data))
+  } catch (error) {
+    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({status: 'error', message: error.name}))
+  }
+
+  
 })
 
 router.post('/new', utils.isAuthenticated, async (req, res) => {

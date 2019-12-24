@@ -27,12 +27,10 @@ const Register = () => {
       })
       .then(resp => resp.json())
       .then(resp => {
-        console.log(resp)
         if (resp.status === 'error') {
           alert(resp.message)
           return
         }
-
 
         Router.push('/admin')
       })
