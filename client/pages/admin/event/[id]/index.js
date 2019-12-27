@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import fetch from 'isomorphic-fetch'
 import Layout from '../../../../components/Layout'
+import Table from '../../../../components/Table'
 
 const Event = (props) => {
   const [showUnknown, setShowUnknown] = useState(false)
@@ -15,12 +16,12 @@ const Event = (props) => {
   const handleApprove = async (e, id) => {
     e.preventDefault()
 
-
     const resp = await fetch(`http://localhost:3001/api/guests/${id}/approve`, {
       method: 'PUT',
       credentials: 'include',
       headers: props.req ? { cookie: props.req.headers.cookie } : undefined
     })
+
     const data = await resp.json()
     console.log(data)
     if (data.status === 'success') {
@@ -54,7 +55,6 @@ const Event = (props) => {
     }
   }
 
-
   const findGuestById = (id) => unknown.find(guest => guest.id === id)
 
   const removeGuestFromUnknowns = (id) => unknown.filter(guest => guest.id !== id)
@@ -69,8 +69,9 @@ const Event = (props) => {
               <div className="flash">{flash}</div>
             )
           }
-          <h2>{props.data.event.title}</h2>
-          <p>{props.data.guests.length} Guests</p>
+          <header>
+          <h2>{props.data.event.title} { showUnknown ? ' | Unknown RSVPS' : '' }</h2>
+          <p>{tableData.length} Guests</p>
 
           <button onClick={(e) => {
               e.preventDefault()
@@ -80,45 +81,18 @@ const Event = (props) => {
             }}>View  
               {showUnknown ? ' Approved' : ' Unknown'}
             </button>
+          
+          </header>
 
-          <br />
-          <br />
-          <table>
-            <tbody>
-              {
-                tableData.map((entry, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{entry.name}</td>
-                      <td>{entry.email}</td>
-                      <td>{entry.instagram}</td>
-
-                      {
-                        showUnknown && (
-                          <>
-                            <td>
-                              <button 
-                                onClick={ (e) => handleApprove(e, entry.id) }>
-                                Approve
-                              </button>
-                            </td>
-                            <td>
-                              <button 
-                                onClick={(e) => handleDeny(e, entry.id)}>
-                                Denied
-                              </button>
-                            </td>
-                          </>
-                        )
-                      }
-                    </tr>
-                  )
-                })
-              }
-            </tbody>
-          </table>
+          <Table 
+            list={ tableData } 
+            showControls={ showUnknown ? true : false } 
+            handleApprove={ handleApprove }
+            handleDeny={ handleDeny }
+          />
           <style jsx>{`
+            header { margin-bottom: 3rem }
+
             .flash { 
               background-color: #eaeaea; 
               padding: 5px 15px; 
