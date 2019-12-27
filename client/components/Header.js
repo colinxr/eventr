@@ -21,6 +21,12 @@ const Header = props => {
           <button onClick={() => handleLogout() }>Logout</button>
         )
       }
+      <style jsx>{`
+        header {
+          display: flex;
+          justify-content: space-between;
+        }
+      `}</style>
     </header>
   )
 }
