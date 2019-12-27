@@ -17,6 +17,9 @@ function MyApp({Component, pageProps, user}) {
 MyApp.getInitialProps = async appContext => {
   const appProps = await App.getInitialProps(appContext)
   
+  console.log(appContext.ctx.req.headers.cookie)
+  console.log(appContext.ctx.req.session)
+
   let user = null
 
   if (

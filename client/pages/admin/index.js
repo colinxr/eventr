@@ -46,6 +46,8 @@ Admin.getInitialProps = async (ctx) => {
     headers: ctx.req ? { cookie: ctx.req.headers.cookie } : undefined
   })
 
+  console.log(ctx.req.headers.cookie)
+
   const data = await resp.json()
 
   if (data.status === 'error') { 
