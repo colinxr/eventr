@@ -9,6 +9,10 @@ import Header from '../../components/Header'
 import store from '../../store'
 
 const Admin = (props) => {
+  const user = useStoreState(state => state.user.user)
+
+  console.log(user)
+
   return (
     <Layout
       content={
@@ -46,18 +50,9 @@ Admin.getInitialProps = async (ctx) => {
     headers: ctx.req ? { cookie: ctx.req.headers.cookie } : undefined
   })
 
-  console.log(ctx.req.headers.cookie)
-
   const data = await resp.json()
 
-  if (data.status === 'error') { 
-    return { error: 'not logged in'}
-  }
-
-  // user = ctx.req.session.passport.user
-  // console.log(ctx.req)
-
-  // store.getActions().user.setUser(user)
+  if (data.status === 'error') return { error: 'not logged in'}
   
   return { events: data }
 }

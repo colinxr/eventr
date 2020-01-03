@@ -5,7 +5,6 @@ const errorHandler = (err, res) => {
   return res.end(JSON.stringify({ status: 'error', message: err.name }))
 }
 const isAuthenticated = (req, res, next) => {
-
   if (req.isAuthenticated()) return next()
   
   res.writeHead(403, {'Content-Type': 'application/json'})

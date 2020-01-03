@@ -12,6 +12,7 @@ const utils     = require('../utils')
 const upload    = multer({dest: '/tmp/csv/'})
 
 router.get('/', utils.isAuthenticated, async (req, res) => {
+  console.log(req.session)
   try {
     Event.findAndCountAll()
       .then(results => {

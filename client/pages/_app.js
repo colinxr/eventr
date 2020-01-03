@@ -3,10 +3,8 @@ import { StoreProvider, useStoreActions } from 'easy-peasy'
 import store from '../store'
 
 function MyApp({Component, pageProps, user}) {
-  if (user) {
-    store.getActions().user.setUser(user)
-  }
-  
+  console.log(user)
+
   return (
     <StoreProvider store={store}>
       <Component {...pageProps}/>
@@ -14,26 +12,20 @@ function MyApp({Component, pageProps, user}) {
   )
 }
 
-MyApp.getInitialProps = async appContext => {
-  const appProps = await App.getInitialProps(appContext)
-  
-  console.log(appContext.ctx.req.headers.cookie)
-  console.log(appContext.ctx.req.session)
-
+MyApp.getInitialProps = async (context) => {
+  const appProps = await App.getInitialProps(context)
   let user = null
 
   if (
-    appContext.ctx.req &&
-    appContext.ctx.req.session &&
-    appContext.ctx.req.session.passport &&
-    appContext.ctx.req.session.passport.user
+    context.ctx.req &&
+    context.ctx.req.session &&
+    context.ctx.req.session.passport &&
+    context.ctx.req.session.passport.user
   ) {
-    user = appContext.ctx.req.session.passport.user
-
-    store.getActions().user.setUser(user)
+    user = context.ctx.req.session.passport.user
   }
   
-  return {...appProps, user: user}
+  return { ...appProps, user }
 }
 
 export default MyApp

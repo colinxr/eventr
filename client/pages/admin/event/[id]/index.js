@@ -114,7 +114,6 @@ Event.getInitialProps = async ({req, query}) => {
   const data = await resp.json()
   const approved = []
   const unknown = []
-  console.log(data)
 
   data.guests.forEach(guest => {
     if (guest.status === 'approved') approved.push(guest)

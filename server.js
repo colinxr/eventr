@@ -38,15 +38,31 @@ List.sync({ alter: true })
 Invite.sync({ alter: true })
 Guest.sync({ alter: true })
 
-// require('./config/passport')(passport)  // pass passport for configuration
-passport.serializeUser((user, done) => {
-  done(null, user.email)
-})
+// require('./config/passport')(passport)  // pass passport for configuratio
 
-passport.deserializeUser(async (email, done) => {
-  const user = await User.findOne({ where: { email } })
-  done(null, user)
-})
+const app = express()
+
+// app.use(morgan('combined'))
+app.use(cookieParser(process.env.APP_SECRET))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+
+// set up session info
+app.use(
+  session({
+    secret: process.env.APP_SECRET,
+    name: 'eventr',
+    resave: false,
+    saveUninitialized: false,
+    rolling: false,
+    cookie: {
+      secure: false,
+      maxAge: 8 * 60 * 60 * 1000
+    },
+    store: sessionStore,
+    unset: 'destroy'
+  }),
+)
 
 passport.use(new LocalStrategy({
   usernameField: 'email',
@@ -74,30 +90,16 @@ passport.use(new LocalStrategy({
   done(null, user);
 }))
 
+passport.serializeUser((user, done) => {
+  done(null, user.email)
+})
 
-const app = express()
+passport.deserializeUser(async (email, done) => {
+  const user = await User.findOne({ where: { email } })
+  done(null, user)
+})
 
-app.use(morgan('combined'))
-app.use(cookieParser(process.env.APP_SECRET))
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
 
-// set up session info
-app.use(
-  session({
-    secret: process.env.APP_SECRET,
-    name: 'eventr',
-    resave: false,
-    saveUninitialized: false,
-    rolling: false,
-    cookie: {
-      secure: false,
-      maxAge: 8 * 60 * 60 * 1000
-    },
-    store: sessionStore,
-    unset: 'destroy'
-  }),
-)
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -108,7 +110,6 @@ app.use('*', (req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 })
-
 
 /*------------------------------------*
 //
